@@ -7,32 +7,19 @@
 use core::panic::PanicInfo;
 use rustos::println;
 
-#[cfg(not(test))]
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    println!("{}", info);
-    loop {}
-}
-
-#[cfg(test)]
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    rustos::test_panic_handler(info);
-
-    loop {}
-}
-
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    println!("Hello World {}", "!");
-
-    #[cfg(test)]
     test_main();
 
     loop {}
 }
 
+#[panic_handler]
+fn panic(info: &PanicInfo) -> ! {
+    rustos::test_panic_handler(info);
+}
+
 #[test_case]
-fn trivial_assertion() {
-    assert_eq!(1, 1);
+fn test_println() {
+    println!("test_println output");
 }
