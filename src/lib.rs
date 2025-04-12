@@ -6,11 +6,13 @@
 #![feature(abi_x86_interrupt)]
 
 use core::panic::PanicInfo;
+pub mod gdt;
 pub mod interrupts;
 pub mod serial;
 pub mod vga_buffer;
 
 pub fn init() {
+    gdt::init();
     interrupts::init_idt();
 }
 
@@ -41,7 +43,7 @@ where
     fn run(&self) {
         serial_print!("{} ...\t", core::any::type_name::<T>());
         self();
-        serial_println!("[PASS]");
+        serial_println!("[ok]");
     }
 }
 
