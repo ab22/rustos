@@ -14,6 +14,16 @@ pub mod vga_buffer;
 pub fn init() {
     gdt::init();
     interrupts::init_idt();
+    unsafe {
+        interrupts::PICS.lock().initialize();
+    }
+    x86_64::instructions::interrupts::enable();
+}
+
+pub fn htl_loop() -> ! {
+    loop {
+        x86_64::instructions::hlt();
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -61,8 +71,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
     serial_println!("[FAIL]\n");
     serial_println!("Error: {}\n", info);
     exit_qemu(QemuExitCode::Failed);
-
-    loop {}
+    htl_loop()
 }
 
 // Entry pont for `cargo test`
@@ -71,7 +80,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 pub extern "C" fn _start() -> ! {
     init();
     test_main();
-    loop {}
+    htl_loop()
 }
 
 #[cfg(test)]
